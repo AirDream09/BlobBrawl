@@ -647,7 +647,7 @@
             <div class="tp" data-k="block"><i class="fa-solid fa-shield-halved"></i></div>
             <div class="tp" data-k="attack"><i class="fa-solid fa-hand-fist"></i></div>
             <div class="tp" data-k="jump"><i class="fa-solid fa-arrow-up"></i></div>
-            <div class="tp" data-k="s0">1</div><div class="tp" data-k="s1">2</div><div class="tp" data-k="s2">3</div><div class="tp" data-k="ult">⚡</div>
+            <div class="tp" data-k="s0">1</div><div class="tp" data-k="s1">2</div><div class="tp" data-k="s2">3</div><div class="tp" data-k="ult"><i class="fa-solid fa-bolt"></i></div>
         </div>
         
         <button id="tp-exit" aria-label="Match verlassen"><i class="fa-solid fa-xmark"></i></button>
@@ -1865,7 +1865,9 @@
         ];
         // Ultimates in allen Modi: 10 zur Auswahl (pro Spieler gespeichert)
         const ULT_ORDER = ['tank', 'shooter', 'jumper', 'mage', 'vampire', 'berserk', 'meteor', 'blitz', 'frost', 'grav'];
-        const ULT_IC = { tank: '🌋', shooter: '🏹', jumper: '⏳', mage: '🕳️', vampire: '🌕', berserk: '😡', meteor: '☄️', blitz: '⚡', frost: '❄️', grav: '🌀' };
+        const ULT_FA = { tank: 'fa-hill-rockslide', shooter: 'fa-crosshairs', jumper: 'fa-hourglass-half', mage: 'fa-atom', vampire: 'fa-moon', berserk: 'fa-face-angry', meteor: 'fa-meteor', blitz: 'fa-bolt', frost: 'fa-snowflake', grav: 'fa-weight-hanging' };
+        const ULT_IC = ULT_FA;   // Alias (Altname)
+        const ultI = (k, col) => `<i class="fa-solid ${ULT_FA[k] || 'fa-bolt'}" style="color:${col || (typeof ULTS !== 'undefined' && ULTS[k] ? ULTS[k][1] : '#fde047')}"></i>`;
         let ultSel = ['tank', 'berserk'];
         try { const u = JSON.parse(localStorage.getItem('blobUlt')); if (Array.isArray(u)) [0, 1].forEach(i => { if (ULT_ORDER.includes(u[i])) ultSel[i] = u[i]; }); } catch (e) { }
         function setUltSel(p, k) { if (!ULT_ORDER.includes(k)) return; ultSel[p - 1] = k; try { localStorage.setItem('blobUlt', JSON.stringify(ultSel)); } catch (e) { } }
@@ -2124,7 +2126,7 @@
                 document.getElementById(`p${p}-slots`).innerHTML = [0, 1, 2].map(i => {
                     const id = picks[p][i], u = id && POWERUPS[id];
                     return u ? `<div class="sel-slot full" onclick="togglePick(${p},'${id}')" title="Entfernen"><i class="fa-solid ${u.icon}" style="color:${u.color}"></i><span>${u.name}</span><b>✕</b></div>` : `<div class="sel-slot">Slot ${i + 1} frei</div>`;
-                }).join('') + (MODES[gmIdx].cls ? '' : `<div class="sel-slot full ult-slot" onclick="openUltSheet(${p})" title="Ultimate wechseln"><span style="font-size:1.1rem">${ULT_IC[ultSel[p - 1]]}</span><span>⚡ Ultimate: ${ULTS[ultSel[p - 1]][0]}</span><b>ändern</b></div>`);
+                }).join('') + (MODES[gmIdx].cls ? '' : `<div class="sel-slot full ult-slot" onclick="openUltSheet(${p})" title="Ultimate wechseln"><span style="font-size:1.1rem">${ultI(ultSel[p - 1])}</span><span><i class="fa-solid fa-bolt" style="color:#fde047"></i> Ultimate: ${ULTS[ultSel[p - 1]][0]}</span><b>ändern</b></div>`);
                 document.getElementById(`p${p}-slots`).classList.toggle('has-ult', !MODES[gmIdx].cls);
                 document.getElementById(`p${p}-count`).textContent = `${picks[p].length}/3` + (MODES[gmIdx].coop && picks[p].length ? ' · ' + CLS[classOf(picks[p])].ic + ' ' + CLS[classOf(picks[p])].n : '');
             });
@@ -2136,10 +2138,10 @@
             const own = ultSel[p - 1];
             const l = ULT_ORDER.filter(k => (!puQ || (ULTS[k][0] + ' ' + ULTS[k][3]).toLowerCase().includes(puQ)) && (!puFl.sel || own === k));
             if (!l.length) return '';
-            return `<div class="pu-cat-h">⚡ Ultimates · 1 extra wählen</div>` + l.map(k => `<div class="pu-card ${own === k ? 'sel-' + p : ''}" onclick="pickUlt(${p},'${k}')">
-                        <div class="text-2xl" style="line-height:1">${ULT_IC[k]}</div>
+            return `<div class="pu-cat-h"><i class="fa-solid fa-bolt"></i> Ultimates · 1 extra wählen</div>` + l.map(k => `<div class="pu-card ${own === k ? 'sel-' + p : ''}" onclick="pickUlt(${p},'${k}')">
+                        <div class="text-2xl" style="line-height:1">${ultI(k)}</div>
                         <div class="text-xs font-black mt-1" style="color:${ULTS[k][1]}">${ULTS[k][0]}</div>
-                        <div class="pu-meta">⚡ Ultimate · lädt sich auf</div>
+                        <div class="pu-meta"><i class="fa-solid fa-bolt"></i> Ultimate · lädt sich auf</div>
                         <div class="text-[10px] text-slate-400 leading-tight">${ULTS[k][3]}</div></div>`).join('');
         }
         function pickUlt(p, k) { setUltSel(p, k); closeUltSheet(); renderPicks(); }
@@ -2155,7 +2157,7 @@
                     <div class="font-black" style="color:#fde047">⚡ Ultimate wählen${mode === 'local' ? ' · P' + p : ''}</div>
                     <button class="key-btn" style="min-width:0;min-height:2.4rem;padding:.2rem .8rem" onclick="closeUltSheet()">✕</button></div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr));gap:.5rem">${ULT_ORDER.map(k => `<div class="pu-card ${own === k ? 'sel-' + p : ''}" style="position:relative;min-height:5rem;padding:.6rem" onclick="pickUlt(${p},'${k}')">
-                    <div style="font-size:1.6rem;line-height:1">${ULT_IC[k]}</div><div class="text-xs font-black mt-1" style="color:${ULTS[k][1]}">${ULTS[k][0]}</div>
+                    <div style="font-size:1.6rem;line-height:1">${ultI(k)}</div><div class="text-xs font-black mt-1" style="color:${ULTS[k][1]}">${ULTS[k][0]}</div>
                     <div class="text-[10px] text-slate-300 leading-tight">${ULTS[k][3]}</div></div>`).join('')}</div></div>`;
             document.body.appendChild(d);
         }
@@ -3199,7 +3201,7 @@
         function useUlt(p) {
             const uk = ultKey(p), u = ULTS[uk]; if (!u) return; p.ult = 0; { const um = msOf(p); if (um) um.ult++; } if (p.local) vib([30, 30, 90]);
             floatText(p.x, p.y - 95, '⚡ ' + u[0] + '!', u[1]); createParticles(p.x, p.y, u[1], 30); hitStop = Math.max(hitStop || 0, 6); screenShake = Math.max(screenShake, 10);
-            try { banner((p.cl && MODES[gmIdx].cls ? clsIc(p.cl) : ULT_IC[uk]) + ' ' + u[0] + '!'); } catch (e) { }
+            try { banner(u[0] + '!'); const eb = el('ev-banner'); if (eb) eb.innerHTML = ultI(uk) + ' ' + u[0] + '!'; } catch (e) { }
             u[2](p);
             if (jrl && gameActive) jrl.en.forEach(e => { if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 560) lvKill(e); });   // Jump & Run: räumt Level-Gegner in der Nähe ab
             if (jrl && jrl.bs && gameActive && Math.hypot(jrl.bs.x - p.x, jrl.bs.y - p.y) < 800) lvBossHurt(jrl, 4);
@@ -3256,7 +3258,7 @@
                 return `<button class="cls-card" style="--cc:${x.col};animation-delay:${q * 50}ms" onclick="${go(k)}">
                     <div style="display:flex;align-items:center;gap:8px"><span style="font-size:32px;line-height:1">${clsIc(k)}</span><div><div style="font-weight:900;font-size:16px">${c[0].split(' ').slice(1).join(' ')}</div><div style="font-size:10.5px;color:#cbd5e1;line-height:1.25">${c[1]}</div></div></div>
                     ${clsBar('Angriff', x.atk, '#f87171')}${clsBar('Abwehr', x.def, '#38bdf8')}${clsBar('Tempo', x.spd, '#fbbf24')}${clsBar('Magie', x.mag, '#c084fc')}
-                    <div class="cls-pass">★ <b>${x.ps[0]}</b> – ${x.ps[1]}</div><div class="cls-pass" style="border-color:#fde04755">⚡ <b>${ULTS[k][0]}</b> – ${ULTS[k][3]}</div><div style="display:flex;flex-wrap:wrap;gap:4px">${ab}</div></button>`;
+                    <div class="cls-pass">★ <b>${x.ps[0]}</b> – ${x.ps[1]}</div><div class="cls-pass" style="border-color:#fde04755">${ultI(k)} <b>${ULTS[k][0]}</b> – ${ULTS[k][3]}</div><div style="display:flex;flex-wrap:wrap;gap:4px">${ab}</div></button>`;
             }).join('');
             o.innerHTML = `<div style="text-align:center"><div style="font-size:12px;font-weight:900;letter-spacing:3px;color:${pc}">${guest ? 'ONLINE · DEINE KLASSE' : n > 1 ? 'SPIELER ' + (i + 1) : 'BLOB-KLASSEN'}</div><div class="text-2xl font-black text-sky-300">Wähle deine Klasse</div>
                 <div style="font-size:12px;color:#c4b5fd;margin-top:2px">⭐ Nach jeder Runde: Level-up &amp; <b>Upgrade</b> (Level 3: <b>Evolution</b>) · ⚡ Ultimate = 🛡️ + 👊 gleichzeitig</div></div>
@@ -6896,7 +6898,7 @@ function brawlMenu(on) { const a = document.getElementById('mm-main'), b = docum
                     <div class="flex items-center gap-3 ${right ? 'flex-row-reverse' : ''}">
                         <span id="p${p.id}-dmg" class="${big ? 'text-3xl w-24' : 'text-2xl w-16'} font-black">0%</span>
                         <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div id="p${p.id}-shield" class="h-full bg-sky-400" style="width:100%"></div></div></div>
-                    ${!p.isZ ? `<div style="display:flex;align-items:center;gap:6px;font-size:10px;font-weight:900"><span id="p${p.id}-ultl" style="color:#fde047;white-space:nowrap;min-width:46px">⚡ 0%</span><div class="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden"><div id="p${p.id}-ult" style="height:100%;width:0%;background:#fde047"></div></div></div>` : ''}
+                    ${!p.isZ ? `<div style="display:flex;align-items:center;gap:6px;font-size:10px;font-weight:900"><span id="p${p.id}-ultl" style="color:#fde047;white-space:nowrap;min-width:46px"><i class="fa-solid fa-bolt"></i> 0%</span><div class="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden"><div id="p${p.id}-ult" style="height:100%;width:0%;background:#fde047"></div></div></div>` : ''}
                     ${slots ? `<div class="grid grid-cols-3 gap-2">${slots}</div>` : ''}`;
                 (big ? (i ? Rc : Lc) : (i < Math.ceil(n / 2) ? Lc : Rc)).appendChild(d);
             });
@@ -6920,7 +6922,7 @@ function brawlMenu(on) { const a = document.getElementById('mm-main'), b = docum
                 sh.style.width = p.shield + '%';
                 sh.className = 'h-full ' + (p.shieldBroken > 0 ? 'bg-rose-500' : 'bg-sky-400');
                 const ue = document.getElementById(`p${p.id}-ult`);
-                if (ue) { const u = Math.min(100, p.ult || 0), full = u >= 100; ue.style.width = u + '%'; ue.style.background = full ? '#f97316' : '#fde047'; ue.style.boxShadow = full ? '0 0 10px #f97316' : 'none'; const ul = document.getElementById(`p${p.id}-ultl`); if (ul) ul.textContent = full ? (MODES[gmIdx].cls ? (p.local && mode !== 'ai' || p.id === 1 ? '⚡ BEREIT: 🛡️+👊' : '⚡ BEREIT!') : (p.local && p.bindId && binds[p.bindId] ? '⚡ BEREIT: ' + keyLabel(binds[p.bindId].ult) : '⚡ BEREIT!')) : '⚡ ' + Math.floor(u) + '%'; }
+                if (ue) { const u = Math.min(100, p.ult || 0), full = u >= 100; ue.style.width = u + '%'; ue.style.background = full ? '#f97316' : '#fde047'; ue.style.boxShadow = full ? '0 0 10px #f97316' : 'none'; const ul = document.getElementById(`p${p.id}-ultl`); if (ul) { const B = '<i class="fa-solid fa-bolt"></i> '; ul.innerHTML = full ? (MODES[gmIdx].cls ? (p.local && mode !== 'ai' || p.id === 1 ? B + 'BEREIT: <i class="fa-solid fa-shield-halved"></i>+<i class="fa-solid fa-hand-fist"></i>' : B + 'BEREIT!') : (p.local && p.bindId && binds[p.bindId] ? B + 'BEREIT: ' + keyLabel(binds[p.bindId].ult) : B + 'BEREIT!')) : B + Math.floor(u) + '%'; } }
                 for (let i = 0; i < 3; i++) {
                     const cdEl = document.getElementById(`p${p.id}-cd-${i}`); if (cdEl) cdEl.style.height = `${(p.cooldowns[i] / (POWERUPS[p.loadout[i]].cd * (MODES[gmIdx].cd * CUS.cd) * (p.cdm || 1))) * 100}%`;
                 }
@@ -7264,7 +7266,10 @@ function brawlMenu(on) { const a = document.getElementById('mm-main'), b = docum
             if (!show) return;
             Object.keys(tpHeld).forEach(a => { if (tpHeld[a] && binds[1][a]) keys[binds[1][a]] = true; });   // falls keys zurückgesetzt wurde
             const me = players[myIdx] || players[0]; if (!me) return;
-            const sig = me.loadout.join();
+            const uk = ultKey(me), sig = me.loadout.join() + '|' + (uk || '') + '|' + (MODES[gmIdx].cls ? 1 : 0);
+            { const ub = ui.querySelector('[data-k="ult"]'), U = uk && ULTS[uk], rdy = !!U && (me.ult || 0) >= 100;
+                if (sig !== tpSig) { ub.innerHTML = '<i class="fa-solid ' + (U ? ULT_FA[uk] : 'fa-bolt') + '"></i>'; ub.style.color = U ? U[1] : ''; ub.title = U ? U[0] : ''; }
+                ub.style.opacity = rdy ? 1 : 0.45; ub.style.boxShadow = rdy ? '0 0 14px 4px ' + U[1] : ''; ub.style.borderColor = rdy ? U[1] : ''; }
             ['s0', 's1', 's2'].forEach((a, i) => {
                 const b = ui.querySelector('[data-k="' + a + '"]');
                 if (sig !== tpSig) { const pu = POWERUPS[me.loadout[i]]; if (pu) { b.innerHTML = '<i class="fa-solid ' + pu.icon + '"></i>'; b.style.color = pu.color; } }
